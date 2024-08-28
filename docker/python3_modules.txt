@@ -1,0 +1,10 @@
+ansible==2.9.2
+boto
+boto3
+botocore
+openshift==0.11.1
+PyYAML>=3.13
+pyhelm
+grpcio
+dnspython
+openstacksdk

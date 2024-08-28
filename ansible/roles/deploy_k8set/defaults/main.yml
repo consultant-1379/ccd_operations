@@ -1,0 +1,5 @@
+---
+# These defaults can be overridden by passing in vars to the role
+
+namespace: de-cni-monitoring
+release_name: k8set

@@ -1,0 +1,112 @@
+- name: K8s Version Check
+  provider: k8s-version
+  requirements:
+    version: ">= {{ k8s_version | default('1.18.1') }}"
+
+- name: Control Plane Benchmark
+  provider: controlplane
+
+  config:
+    rwoStorageClassName: "{{ rwo_storage_class | default('network-block') }}"
+    deploymentReplicas: 3
+    deploymentCount: 3
+    podCount: 50
+    statefulsetsCount: 3
+    serviceCount: 10
+    pvcCount: 3
+    configMapCount: 20
+
+  requirements:
+    pod.creation.throuput:
+      minimum: 80
+    pod.apicall.create.median.latency:
+      maximum: 1000
+    service.apicall.delete.p99.latency:
+      maximum: 500
+    service.apicall.create.max.latency:
+      maximum: 500
+    service.apicall.list.median.latency:
+      maximum: 200
+    service.apicall.list.min.latency:
+      maximum: 200
+    service.apicall.list.max.latency:
+      maximum: 500
+    service.apicall.list.p99.latency:
+      maximum: 500
+    service.apicall.get.median.latency:
+      maximum: 200
+    service.apicall.update.median.latency:
+      maximum: 200
+    pod.server.image.pulling.median.latency:
+      maximum: 1000
+    pod.server.starting.p99.latency:
+      maximum: 2000
+    pod.server.startup.total.median.latency:
+      maximum: 2000
+    pod.clientServer.e2e.median.latency:
+      maximum: 4000
+    pod.client.scheduling.median.latency:
+      maximum: 50
+    pod.client.kubelet.initialize.median.latency:
+      maximum: 50
+    pod.client.starting.median.latency:
+      maximum: 2000
+    pod.client.startup.total.median.latency:
+      maximum: 2000
+    pod.apicall.update.median.latency:
+      maximum: 200
+    pod.apicall.delete.median.latency:
+      maximum: 300
+    pod.apicall.create.median.latency:
+      maximum: 600
+    pod.apicall.list.median.latency:
+      maximum: 200
+    pod.apicall.get.median.latency:
+      maximum: 200
+
+- name: Data Plane Internode Network Performance
+  provider: network-perf
+  requirements:
+    tcp.latency:
+      maximum: 1 ms
+    udp.latency:
+      maximum: 1 ms
+    tcp.bandwith:
+      minimum: 1000 MB
+    udp.sendBandwidth:
+      minimum: 1000 MB
+    udp.recvBandwidth:
+      minimum: 100 MB
+
+- name: Data Plane Storage Benchmark
+  provider: fio
+  config:
+    storageClassName: network-block
+    fioworkerCount: 2
+    pvcSize: 2Gi
+    jobname: filejob
+    bs: 4k
+    size: 1G
+    readwrite: randrw
+    rwmixread: 30
+    direct: 1
+    ioengine: libaio
+    runtime: 300
+    time_based: 1
+    iodepth: 32
+    numjobs: 1
+    group_reporting: 1
+
+  requirements:
+    readIops:
+      minimum: 2000
+    writeIops:
+      minimum: 1500
+    readThroughputMbps:
+      minimum: 2000
+    writeThroughputMbps:
+      minimum: 2000
+    readLatencyMs:
+      maximum: 5
+    writeLatencyMs:
+      maximum: 10
